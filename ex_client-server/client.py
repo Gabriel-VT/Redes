@@ -11,7 +11,7 @@ class Client:
 
     def run(self):
         content=input('message: ')
-        message={'content':content, 'list_ex':[1,2,3,4,5], 'num':random.randint(1,10)}
+        message={'content':content, 'list_ex':[1,2,3,4,5],'to':random.randint(1,10), 'num':random.randint(1,10)}
 
         self.__client.send(json.dumps(message).encode())
 

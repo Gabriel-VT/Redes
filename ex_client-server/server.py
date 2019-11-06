@@ -25,10 +25,10 @@ class Server:
                 messages.append(data)
 
             send=[]
-            r=random.randint(1,10)
-            print(r)
+            num=random.randint(1,10) #client ip
+            print(num)
             for m in messages:
-                if m['num']==r:
+                if m['to']==num:
                     send.append(m)
                 
             conn.send(json.dumps(send).encode())
