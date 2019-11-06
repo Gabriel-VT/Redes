@@ -1,4 +1,16 @@
-import socket, time, functools
+import socket, time, functools, json, deepcopy
+MAX_SIZE=100
+
+CONTENT_HEADER='Content'
+SENDER_HEADER='Sender'
+DEST_HEADER='Destination'
+CONT_HEADER='Content'
+SEQ_HEADER='Seq'
+CHECKSUM_HEADER='Checksum'
+MSG_HEADER='MESSAGE'
+ACK_HEADER='ACK'
+REQUEST_HEADER='REQUEST'
+
 
 def checksum(st):
     return functools.reduce(lambda x,y:x+y, map(ord, st))
@@ -9,13 +21,13 @@ class SocketClient:
         self.__buffer=()
         self.__encoding='utf-8'
 
-    def open(self, host, port, timeout=None):
+    def open(self, host, port, timeout=None): #open client
         self.__server_addr=(host, port)
         self.__client.connect(self.__server_addr)
         self.__addr=socket.gethostbyname(socket.gethostname()), port
         self.__client.settimeout(timeout)
 
-    def save(self, filename, content):
+    def save(self, filename, content): #save in file
         try:
             file= open(filename, 'a')
             file.write(content)
@@ -24,53 +36,92 @@ class SocketClient:
             print(e)
         finally:
             file.close()
-
-    def parse_text(self, text):
-        lista=text.split(';\n')
-        dic={}
-        for i in range(len(lista)):
-            if ': ' in lista[i]:
-                lista[i]=lista[i].split(': ')
-                try:
-                    dic[lista[i][0]]=int(lista[i][1])
-                except:
-                    dic[lista[i][0]]=lista[i][1]
-        return dic
             
-    def run(self):
+    def run(self): #start
         try:
-            
+            #CONNECT TO THE HOST
             ip=input('digite o IP do servidor: ')
             port=int(input('digite a porta do servidor: '))
             self.open(ip, port)
-            self.__buffer=()
+            self.__buffer=[]
+            print('Seu IP: '+socket.gethostbyname(socket.gethostname()))
 
             while True:
-                destination=input("Digite o destinatário: ")
+                #REQUEST MESSAGE TO BE SENT AND THE DESTINATION
+                destination=input("Digite o IP do destinatário: ")
                 content=input("Digite a mensagem: ")
-                
-                responses=()
-                sequence=0
-                check=checksum(content)
-                    
-                print('send')
-                header='Sender: '+str(self.__addr)+';\nDestination: '+str(destination)+';\nSeq: '+ str(sequence)+';\nChecksum: '+str(check)+';\nContent: '
-                message=header+content+';\n'
 
-                self.__buffer+=(message,)
-                self.__client.send(message.encode('utf-8'))
-                print('sent')
+                #CUT MESSAGE INTO PIECES
+                size=len(content)
+                quant=size//MAX_SIZE
+                if size%MAX_SIZE!=0:
+                    quant+=1
+                for sequence in range(quant):
+                    if sequence!=quant-1:
+                        c=content[sequence*MAX_SIZE:(sequence+1)*MAX_SIZE]
+                    else:
+                        c=content[sequence*MAX_SIZE:]
 
-                from_server=self.__client.recv(4096).decode('utf-8')
-                received=self.parse_text(from_server)
-                print(from_server)
+                    #CHECKSUM
+                    check=checksum(c)
 
-                c=received['Content']
-                #if 'ack' in c:
+                    #GENERATE MESSAGE DICT
+                    print('send')
+                    message={CONTENT_HEADER:c, SENDER_HEADER:self.__addr[0], DEST_HEADER: destination, SEQ_HEADER: sequence, CHECKSUM_HEADER: check, REQUEST_HEADER: True, ACK_HEADER: []}
+
+                    #ADD TO BUFFER AND SEND
+                    self.__buffer.append(message)
+                    self.__client.send(json.dumps(message).encode(self.__encoding))
+                    print('sent')
+
+                #ENDED SENDING
+                self.__client.send(json.dumps(CONTENT_END).encode(self.__encoding))
+                print('end')
+
+
+                #WAIT RESPONSE
+                from_server=''
+                while True:
+                    data=self.__client.recv(4096).decode(self.__encoding)
+                    #print(data)
+                    if not data or data==CONTENT_END: break
+                    from_server+=data
+                    if CONTENT_END in from_server: break
+
+                #RECEIVED RESPONSE
+                received=json.loads(from_server)
+                print('RECV')
+                print(received)
+
+                #ACKs
+                acklist=[]
+                if checksum(received[CONTENT_HEADER])==received[CHECKSUM_HEADER]:
+                    acklist.append(received[SEQ_HEADER])
+                    messages.append(received)
+                    print('ack')
+                else:
+                    print('nak')
+
+                #SEND ACKS
+                send=[]
+                for m in messages:
+                    m[ACK_HEADER]=acklist
+
+                    if m[DEST_HEADER]==client_addr[0]:
+                        #IF REQUEST SEND MESSAGES AND ACKS
+                        if received[REQUEST_HEADER]:
+                            send.append(m)
+                            
+                        #IF NOT REQUEST SEND ONLY ACKS
+                        else:
+                            ackmessage=m.deepcopy()
+                            ackmessage[CONTENT_HEADER]=ACK_HEADER
+                            send.append(ackmessage)
                     
 
 
         except Exception as e:
+            print('erro')
             print(e)
 
         finally:
@@ -85,14 +136,14 @@ class SocketServer:
         self.__serv=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__encoding='utf-8'
 
-    def open(self, host, port, timeout=None):
+    def open(self, host, port, timeout=None): #open client
         self.__addr=(host, port)
         self.__serv.bind(self.__addr)
         self.__serv.listen(5)
         self.__serv.settimeout(timeout)
         
 
-    def save(self, filename, content):
+    def save(self, filename, content): #save in file
         try:
             file= open(filename, 'a')
             file.write(content)
@@ -102,69 +153,98 @@ class SocketServer:
         finally:
             file.close()
 
-    def parse_text(self, text):
-        lista=text.split(';\n')
-        dic={}
-        for i in range(len(lista)):
-            if ': ' in lista[i]:
-                lista[i]=lista[i].split(': ')
-                try:
-                    dic[lista[i][0]]=int(lista[i][1])
-                except:
-                    dic[lista[i][0]]=lista[i][1]
-        return dic
-
-    def run(self):
+    def run(self): #start
         try:
+            #OPEN SERVER AT LOCALHOST AND SELECTED PORT
             ip=socket.gethostbyname(socket.gethostname())
             port=int(input('digite a porta do servidor: '))
             self.open(ip, port)
             print("Servidor aberto em "+ip+" na porta "+str(port))
-            self.__buffer=()
+            self.__buffer=[]
+            recv_messages=[]
+            
             while True:
+                #WAIT CONNECTION
                 conn, client_addr = self.__serv.accept()
+                print('Conectado a '+client_addr[0])
                 from_client=''
 
-                sequence=0
+                #WAIT MESSAGE
                 while True:
-                    data=conn.recv(4096).decode('utf-8')
+                    data=conn.recv(4096).decode(self.__encoding)
                     #print(data)
-                    if not data: break
+                    if not data or data==CONTENT_END: break
                     from_client+=data
-                    #conn.send('r'.encode('utf-8'))
+                    if CONTENT_END in from_server: break
 
-                    received=self.parse_text(from_client)
-                    if checksum(received['Content'])==received['Checksum']:
-                        ack=sequence
+                #RECEIVED MESSAGE
+                received=json.loads(from_client)
+                print('RECV')
+                print(received)
+
+                #ACKs
+                acklist=[]
+                if checksum(received[CONTENT_HEADER])==received[CHECKSUM_HEADER]:
+                    acklist.append(received[SEQ_HEADER])
+                    messages.append(received)
+                    print('ack')
+                else:
+                    print('nak')
+
+                #GENERATE RESPONSE AND ADD TO BUFFER
+                print(messages)
+
+                for m in messages:
+                    m[ACK_HEADER]=acklist
+
+                    if m[DEST_HEADER]==client_addr[0]:
+                        #IF REQUEST SEND MESSAGES AND ACKS
+                        if received[REQUEST_HEADER]:
+                            self.__buffer.append(m)
+                            
+                        #IF NOT REQUEST SEND ONLY ACKS
+                        else:
+                            ackmessage=m.deepcopy()
+                            ackmessage[CONTENT_HEADER]=ACK_HEADER
+                            self.__buffer.append(ackmessage)
+
+                #CUT MESSAGE INTO PIECES
+                size=len(content)
+                quant=size//MAX_SIZE
+                if size%MAX_SIZE!=0:
+                    quant+=1
+                for sequence in range(quant):
+                    if sequence!=quant-1:
+                        c=content[sequence*MAX_SIZE:(sequence+1)*MAX_SIZE]
                     else:
-                        ack=-1
+                        c=content[sequence*MAX_SIZE:]
 
-                    print(from_client)
+                    #CHECKSUM
+                    check=checksum(c)
 
-                    received=self.parse_text(from_client)
-                    print(received)
+                    #GENERATE MESSAGE DICT
+                    print('send')
+                    message={CONTENT_HEADER:c, SENDER_HEADER:self.__addr[0], DEST_HEADER: destination, SEQ_HEADER: sequence, CHECKSUM_HEADER: check, REQUEST_HEADER: False, ACK_HEADER: []}
+
+                    #ADD TO BUFFER AND SEND
+                    self.__client.send(json.dumps(message).encode(self.__encoding))
+                    print('sent')
+
+                #ENDED SENDING
+                self.__client.send(json.dumps(CONTENT_END).encode(self.__encoding))
+                print('end')
+
+
+                #WAIT ACKs
+
                     
-                    content='ack: '+str(ack)
-                    check=checksum(content)
-                    header='Sender: '+str(self.__addr)+';\nDestination: '+str(client_addr)+';\nSeq: '+ str(sequence)+';\nChecksum: '+str(check)+';\nContent: '
-                    message=header+content+';\n'
-                    
-                    conn.send(message.encode('utf-8'))
-
-                    sequence+=1
-                
-                #break
 
 
         except Exception as e:
+            print('erro')
             print(e)
             
         finally:
             conn.close()
             print('desconectado')
-
-
-class P2P:
-    def __init__(self):
-        pass
         
