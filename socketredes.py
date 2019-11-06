@@ -65,6 +65,10 @@ class SocketClient:
                 received=self.parse_text(from_server)
                 print(from_server)
 
+                c=received['Content']
+                if 'ack' in c:
+                    
+
 
         except Exception as e:
             print(e)
@@ -124,7 +128,7 @@ class SocketServer:
                 sequence=0
                 while True:
                     data=conn.recv(4096).decode('utf-8')
-                    # print(data)
+                    print(data)
                     if not data: break
                     from_client+=data
                     #conn.send('r'.encode('utf-8'))
