@@ -124,28 +124,30 @@ class SocketServer:
                 sequence=0
                 while True:
                     data=conn.recv(4096).decode('utf-8')
+                    print(data)
                     if not data: break
                     from_client+=data
+                    #conn.send('r'.encode('utf-8'))
+
                     received=self.parse_text(from_client)
                     if checksum(received['Content'])==received['Checksum']:
-                        conn.send(('ACK '+str(received['Seq'])).encode('utf-8'))
+                        ack=sequence
                     else:
-                        conn.send('NAK '.encode('utf-8'))
+                        ack=-1
 
-                print(from_client)
+                    print(from_client)
 
-                received=self.parse_text(from_client)
-                print(received)
+                    received=self.parse_text(from_client)
+                    print(received)
                     
-                ack=0
-                content='0'
-                check=checksum(content)
-                header='Sender: '+str(self.__addr)+';\nDestination: '+str(client_addr)+';\nSeq: '+ str(sequence)+';\nChecksum: '+str(check)+';\nContent: '
-                message=header+content+';\n'
+                    content='ack: '+str(ack)
+                    check=checksum(content)
+                    header='Sender: '+str(self.__addr)+';\nDestination: '+str(client_addr)+';\nSeq: '+ str(sequence)+';\nChecksum: '+str(check)+';\nContent: '
+                    message=header+content+';\n'
                     
-                conn.send(message.encode('utf-8'))
+                    conn.send(message.encode('utf-8'))
 
-                sequence+=1
+                    sequence+=1
                 
                 #break
 
