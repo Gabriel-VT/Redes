@@ -124,7 +124,7 @@ class SocketServer:
                 sequence=0
                 while True:
                     data=conn.recv(4096).decode('utf-8')
-                    print(data)
+                    # print(data)
                     if not data: break
                     from_client+=data
                     #conn.send('r'.encode('utf-8'))
