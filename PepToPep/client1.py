@@ -21,7 +21,7 @@ class MySubscribeCallback(SubscribeCallback):
   def message(self, pubnub, message):
     print ("from device 2: " + message.message)
 
-class PTOP(): 
+class P2P(): 
   def __init__(self):
     pass
   
@@ -42,5 +42,5 @@ class PTOP():
     finally:
       os._exit(1)
 
-iniciaServico = PTOP()
+iniciaServico = P2P()
 iniciaServico.run()
