@@ -20,10 +20,27 @@ class MySubscribeCallback(SubscribeCallback):
     pass
   def message(self, pubnub, message):
     print ("from device 1: " + message.message)
-pubnub.add_listener(MySubscribeCallback())
-pubnub.subscribe().channels("chan-1").execute()
-## publish a message
-while True:
-  msg = input("Input a message to publish: ")
-  if msg == 'exit': os._exit(1)
-  pubnub.publish().channel("chan-1").message(str(msg)).pn_async(my_publish_callback)
+    
+class PTOP(): 
+  def __init__(self):
+    pass
+  
+  def run(self):
+    try: 
+      channel=input('digite o canal: ')
+      pubnub.add_listener(MySubscribeCallback())
+      pubnub.subscribe().channels(channel).execute()
+      ## publish a message
+      while True:
+        msg = input("Input a message to publish: ")
+        if msg == 'exit': os._exit(1)
+        pubnub.publish().channel(channel).message(str(msg)).pn_async(my_publish_callback)
+
+    except Exception as e:
+      print(e)
+
+    finally:
+      os._exit(1)
+
+iniciaServico = PTOP()
+iniciaServico.run()
