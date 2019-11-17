@@ -1,33 +1,80 @@
-import socket, json, random
+import socket, time
+import _thread as thread
 
 end='/end'
+ack='/ACK'
+none='/NA'
+
+def parse_text(text):
+    d={}
+    lista=text.split(';')
+    for seg in lista:
+        div=seg.split('=')
+        d[div[0]]=div[1]
+
+    return d
 
 class Client:
     def __init__(self):
+        #init client
         self.__client=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    def open(self, host, port): #open client
+        
+    def open(self, host, port):
+        #connect to server
+        self.__client=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__server_addr=(host, port)
         self.__client.connect(self.__server_addr)
+           
 
     def run(self):
-        content=input('message: ')
-        message={'content':content, 'list_ex':[1,2,3,4,5],'to':random.randint(1,10), 'num':random.randint(1,10)}
+        ip=socket.gethostbyname(socket.gethostname())
+        port=2000
+        self.open(ip, port)
 
-        self.__client.send(json.dumps(message).encode())
+        #set timeout in seconds
+        self.__client.settimeout(1)
 
-        self.__client.send(json.dumps(end).encode())
+        #
+        while True:
+            #open connection
+            self.open(ip, port)
+            time.sleep(0.2)
 
-        from_server=json.loads(self.__client.recv(4096).decode())
-        print(from_server)
-            
+            #message destination
+            dest=input('destination ("0" to end): ')
+
+            if dest!='0':
+                #message content
+                content=input('message: ')
+                #format message
+                message=str.format("char={};dest={};cont={}",len(content),dest, content)
+                #send
+                self.__client.send(message.encode())
+                self.__client.send(end.encode())
+
+                #wait response (with timeout)
+                from_server=self.__client.recv(4096).decode()
+
+                #if there is messages print
+                if from_server!=none:
+                    print("received:")
+                    print(from_server)
+                    print("content:")
+                    print(parse_text(from_server)['cont'])
+                    print()
+                self.__client.close()
+        
+            else:
+                break
+                self.__client.close()
+
         self.__client.close()
+            
         
 
-ip=socket.gethostbyname(socket.gethostname())
-port=2000
+
 
 c=Client()
-c.open(ip, port)
 c.run()
 
 
