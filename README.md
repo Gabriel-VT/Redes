@@ -11,7 +11,7 @@ INSTRUÇÕES:
     2-Chame a função "Server.run()"
     3-Digite o número da porta quando for solicitado. O IP será o local da máquina.
     4-O servidor irá aguardar a conexão de algum cliente.
-    5-Quando houver conexão, o servidor irá começar a receber mensagens e armazenar para encaminhar ao destinatário das mesmas. Este processo é feito em outra thread, em paralelo com a conexão de novos clientes simultaneamente.
+    5-Quando houver conexão, o servidor irá começar a receber mensagens e armazenar para encaminhar ao destinatário das mesmas.
     6-Caso haja mensagens para o cliente conectado, estas serão encaminhadas. Caso não haja, será avisado que não há.
     7-O processo se repete a partir da etapa 4.
     
