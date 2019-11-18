@@ -1,6 +1,4 @@
 import socket, time
-from client import *
-from server import *
 import _thread as thread
 
 #constants
@@ -24,58 +22,63 @@ class P2P:
     def open(self, host, port):
         self.__p2p_addr=(host, port)
         self.__client=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    def listen(self):
-        self.__serv.bind(self.__addr)
-        self.__serv.listen(5)
-
-        while True:
-            conn, addr = self.__serv.accept()
-            print('Conectado a '+addr[0])
-
-            while True:
-                    #received message
-                    data=conn.recv(4096).decode()
-
-                    if not data or data==end: break
-
-                    #parse
-                    dic=parse_text(data)
-                    print("Recebido:")
-                    print(data)
-                    print("Conteudo:")
-                    print(dic['cont'])
-                    print()
-
-                    if end in data: break
-                        
-            conn.close()
-
-        self.__serv.close()
+        self.__serv=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def start(self):
         thread.start_new_thread(self.listen, ())
         host, port=self.__p2p_addr
 
-        while True:
-            dest=input('Destino ("0" para sair): ')
-            dest_addr=(dest, port)
-            
-            self.__client.connect(dest_addr)
+        mode=input('Digite "h" para host e "c" para cliente P2P: ')
 
-            self.__client.settimeout(1)
+        if mode=='C' or mode=='c':
 
-            #message content
-            content=input('Mensagem: ')
-            #format message
-            message=str.format("char={};dest={};cont={}",len(content),dest, content)
-            #send
-            self.__client.send(message.encode())
-            self.__client.send(end.encode())
+            while True:
+                dest=input('Destino ("0" para sair): ')
+                dest_addr=(dest, port)
+                
+                self.__client.connect(dest_addr)
+
+                self.__client.settimeout(1)
+
+                #message content
+                content=input('Mensagem: ')
+                #format message
+                message=str.format("char={};dest={};cont={}",len(content),dest, content)
+                #send
+                self.__client.send(message.encode())
+                self.__client.send(end.encode())
+
+                self.__client.close()
 
             self.__client.close()
 
-        self.__client.close()
+        elif mode=='H' or mode=='h':
+            self.__serv.bind(self.__p2p_addr)
+            self.__serv.listen(5)
+
+            while True:
+                conn, addr = self.__serv.accept()
+                print('Conectado a '+addr[0])
+
+                while True:
+                        #received message
+                        data=conn.recv(4096).decode()
+
+                        if not data or data==end: break
+
+                        #parse
+                        dic=parse_text(data)
+                        print("Recebido:")
+                        print(data)
+                        print("Conteudo:")
+                        print(dic['cont'])
+                        print()
+
+                        if end in data: break
+                            
+                conn.close()
+
+            self.__serv.close()
                 
 
         
