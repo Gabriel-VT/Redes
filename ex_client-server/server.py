@@ -1,6 +1,7 @@
 import socket, time
 import _thread as thread
 
+#constants
 end='/end'
 ack='/ACK'
 none='/NA'
@@ -65,7 +66,7 @@ class Server:
             conn, addr = self.__serv.accept()
             print('connected to '+addr[0])
 
-            #open thread
+            #open thread to handle new connection
             thread.start_new_thread(self.on_new_client, (conn, addr))
 
         self.__serv.close()

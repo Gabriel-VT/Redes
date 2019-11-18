@@ -53,20 +53,24 @@ class Client:
                 self.__client.send(end.encode())
 
                 #wait response (with timeout)
-                from_server=self.__client.recv(4096).decode()
+                received=[]
+                while True:
+                    #received message
+                    from_server=self.__client.recv(4096).decode()
+                    if not from_server or from_server==end: break
 
-                #if there is messages print
-                if from_server!=none:
-                    print("received:")
-                    print(from_server)
-                    print("content:")
-                    print(parse_text(from_server)['cont'])
-                    print()
+                    #if there is messages print
+                    if from_server!=none:
+                        print("received:")
+                        print(from_server)
+                        print("content:")
+                        print(parse_text(from_server)['cont'])
+                        print()
+
                 self.__client.close()
         
             else:
                 break
-                self.__client.close()
 
         self.__client.close()
             
