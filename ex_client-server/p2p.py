@@ -21,16 +21,14 @@ class P2P:
 
     def open(self, host, port):
         self.__p2p_addr=(host, port)
-        self.__client=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__serv=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def start(self):
-        thread.start_new_thread(self.listen, ())
         host, port=self.__p2p_addr
 
         mode=input('Digite "h" para host e "c" para cliente P2P: ')
 
         if mode=='C' or mode=='c':
+            self.__client=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             while True:
                 dest=input('Destino ("0" para sair): ')
@@ -53,6 +51,8 @@ class P2P:
             self.__client.close()
 
         elif mode=='H' or mode=='h':
+            self.__serv=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            
             self.__serv.bind(self.__p2p_addr)
             self.__serv.listen(5)
 
@@ -92,6 +92,6 @@ class P2P:
         self.start()
 
         
-p=P2P()
-p.run()
+#p=P2P()
+#p.run()
         
