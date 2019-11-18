@@ -2,7 +2,6 @@ import socket, time
 import _thread as thread
 
 end='/end'
-ack='/ACK'
 none='/NA'
 
 def parse_text(text):
@@ -27,8 +26,8 @@ class Client:
            
 
     def run(self):
-        ip=socket.gethostbyname(socket.gethostname())
-        port=2000
+        ip=input('Digite o IP do servidor: ')
+        port=int(input('Digite a porta: '))
         self.open(ip, port)
 
         #set timeout in seconds
@@ -41,11 +40,11 @@ class Client:
             time.sleep(0.2)
 
             #message destination
-            dest=input('destination ("0" to end): ')
+            dest=input('Destino ("0" para sair): ')
 
             if dest!='0':
                 #message content
-                content=input('message: ')
+                content=input('Mensagem: ')
                 #format message
                 message=str.format("char={};dest={};cont={}",len(content),dest, content)
                 #send
@@ -61,9 +60,9 @@ class Client:
 
                     #if there is messages print
                     if from_server!=none:
-                        print("received:")
+                        print("Recebido:")
                         print(from_server)
-                        print("content:")
+                        print("Conteudo:")
                         print(parse_text(from_server)['cont'])
                         print()
 

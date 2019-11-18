@@ -3,7 +3,6 @@ import _thread as thread
 
 #constants
 end='/end'
-ack='/ACK'
 none='/NA'
 
 def parse_text(text):
@@ -61,10 +60,15 @@ class Server:
         clientsocket.close()
 
     def run(self):
+        ip=socket.gethostbyname(socket.gethostname())
+        port=int(input('Digite a porta: '))
+
+        self.open(ip,port)
+        
         while True:
             #wait connection from client
             conn, addr = self.__serv.accept()
-            print('connected to '+addr[0])
+            print('Conectado a '+addr[0])
 
             #open thread to handle new connection
             thread.start_new_thread(self.on_new_client, (conn, addr))
@@ -72,11 +76,7 @@ class Server:
         self.__serv.close()
         
 
-ip=socket.gethostbyname(socket.gethostname())
-port=2000
-
 s=Server()
-s.open(ip,port)
 s.run()
 
 
