@@ -4,6 +4,7 @@ import _thread as thread
 #constants
 end='/end'
 none='/NA'
+close='/cls'
 
 def parse_text(text):
     d={}
@@ -28,57 +29,65 @@ class Server:
         #received messages list
         self.__messages=[]
 
-    def on_new_client(self, clientsocket, addr): 
-        while True:
-            #received message
-            data=clientsocket.recv(4096).decode()
-
-            if not data or data==end: break
-
-            #save in list
-            self.__messages.append(data)
-            print(data)
-
-            #parse
-            dic=parse_text(data)
-            
-            #send corresponding messages to client
-            count=0
-            for msg in self.__messages:
-                dest=parse_text(msg)['dest']
-                if dest == addr[0]:
-                    count+=1
-                    clientsocket.send(msg.encode())
-                    time.sleep(0.2)
-                    
-            #if no messages have been found, send '/NA'
-            if count==0:
-                clientsocket.send(none.encode())
-
-            if end in data: break
-                
-        clientsocket.close()
-
-    def run(self):
-        ip=socket.gethostbyname(socket.gethostname())
-        port=int(input('Digite a porta: '))
-
-        self.open(ip,port)
-        
+    def start(self):
         while True:
             #wait connection from client
             conn, addr = self.__serv.accept()
             print('Conectado a '+addr[0])
 
-            #open thread to handle new connection
-            thread.start_new_thread(self.on_new_client, (conn, addr))
+            close_cmd=0
+            while True:
+                #received message
+                data=conn.recv(4096).decode()
+
+                if not data or data==end: break
+                
+                if data == close:
+                    close_cmd=1
+                    break
+
+                #save in list
+                self.__messages.append(data)
+                print(data)
+
+                #parse
+                dic=parse_text(data)
+                
+                #send corresponding messages to client
+                count=0
+                i=0
+                while i < len(self.__messages):
+                    msg=self.__messages[i]
+                    dest=parse_text(msg)['dest']
+                    if dest == addr[0]:
+                        count+=1
+                        conn.send(msg.encode())
+                        del self.__messages[i]
+                        time.sleep(0.2)
+                    else:
+                        i+=1
+                        
+                #if no messages have been found, send '/NA'
+                if count==0:
+                    conn.send(none.encode())
+
+                if end in data: break
+                    
+            conn.close()
+
+            if close_cmd==1: break
 
         self.__serv.close()
         
+        
+    def run(self):
+        ip=socket.gethostbyname(socket.gethostname())
+        print('Seu IP: '+ip)
+        port=int(input('Digite a porta: '))
 
-s=Server()
-s.run()
-
+        self.open(ip,port)
+        self.start()
+        
 
 
         

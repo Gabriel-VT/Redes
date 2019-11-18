@@ -3,6 +3,7 @@ import _thread as thread
 
 end='/end'
 none='/NA'
+close='/cls'
 
 def parse_text(text):
     d={}
@@ -23,24 +24,21 @@ class Client:
         self.__client=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__server_addr=(host, port)
         self.__client.connect(self.__server_addr)
-           
 
-    def run(self):
-        ip=input('Digite o IP do servidor: ')
-        port=int(input('Digite a porta: '))
-        self.open(ip, port)
-
+    def start(self, dest=0):
         #set timeout in seconds
         self.__client.settimeout(1)
 
-        #
+        #main loop
         while True:
             #open connection
+            ip, port = self.__server_addr
             self.open(ip, port)
             time.sleep(0.2)
 
             #message destination
-            dest=input('Destino ("0" para sair): ')
+            if dest==0:
+                dest=input('Destino ("0" para sair): ')
 
             if dest!='0':
                 #message content
@@ -67,17 +65,21 @@ class Client:
                         print()
 
                 self.__client.close()
+                dest=0
         
             else:
+                self.__client.send(close.encode())
                 break
 
         self.__client.close()
-            
         
+           
 
+    def run(self):
+        ip=input('Digite o IP do servidor: ')
+        port=int(input('Digite a porta: '))
+        self.open(ip, port)
+        self.start()
 
-
-c=Client()
-c.run()
 
 
