@@ -10,7 +10,7 @@ def GetUdpChatMessage():
     global name
     global broadcastSocket
     global current_online
-    
+
     while True:
         recved = broadcastSocket.recv(1024).decode('utf-8')
 
@@ -87,14 +87,17 @@ def main():
     sendSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)           
     sendSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)         
 
-    # Mensagem de inicialização
     print('*************************************************')
-    print('*            Welcome to P2P Chatroom            *')
+    print('*               Start Protocol P2P              *')
     print('*              To exit type: Exit()             *')
     print('*************************************************')
 
-    #Escolhendo o nome de usuário
     global name
+    global recvThread
+    global sendMsgThread
+    global current_online
+    global sendOnlineThread
+
     name = ''                                                   
     while True:                                                 
         if not name:
@@ -105,10 +108,6 @@ def main():
                 break
     print('*************************************************')  
 
-    global recvThread
-    global sendMsgThread
-    global current_online
-    global sendOnlineThread
     
     recvThread = Thread(target=GetUdpChatMessage)               
     sendMsgThread = Thread(target=SendBroadcastMessageForChat)  
