@@ -21,5 +21,7 @@ INSTRUÇÕES:
   *Abrir P2P:*
     1-
 
+  *Obs:* Nesta implementação, quando o programa for executado o objeto correspondente já será instanciado e inicializado por padrão.
+
 Referência da biblioteca 'socket' (py3): https://docs.python.org/3/library/socket.html
 Referência da biblioteca 'thread' (py3): https://docs.python.org/3/library/_thread.html
