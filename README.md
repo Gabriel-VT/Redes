@@ -12,7 +12,7 @@ INSTRUÇÕES:
     3-O servidor irá abrir para os clientes se conectarem. Os clientes podem se conectar ou desconectar a qualquer momento.
     4-O servidor irá receber mensagens e encaminhá-las a todos os clientes conectados.
     
-  *Abrir um Client:*\n
+  *Abrir um Client:*
     1-Instancie um objeto da classe "Client".
     2-Chame a função "Client.run()".
     3-Digite o IP do servidor e o seu apelido quando for solicitado.
