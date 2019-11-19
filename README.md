@@ -9,21 +9,14 @@ INSTRUÇÕES:
   *Abrir um Server:* 
     1-Instancie um objeto da classe "Server"
     2-Chame a função "Server.run()"
-    3-Digite o número da porta quando for solicitado. O IP será o local da máquina.
-    4-O servidor irá aguardar a conexão de algum cliente.
-    5-Quando houver conexão, o servidor irá começar a receber mensagens e armazenar para encaminhar ao destinatário das mesmas.
-    6-Caso haja mensagens para o cliente conectado, estas serão encaminhadas. Caso não haja, será avisado que não há.
-    7-O processo se repete a partir da etapa 4.
-    
+    3-O servidor irá abrir para os clientes se conectarem. Os clientes podem se conectar ou desconectar a qualquer momento.
+    4-O servidor irá receber mensagens e encaminhá-las a todos os clientes conectados.    
     
   *Abrir um Client:*
     1-Instancie um objeto da classe "Client"
     2-Chame a função "Client.run()"
-    3-Digite o IP do servidor e o número da porta quando for solicitado.
-    4-Digite o destino da mensagem quando for solicitado. Insira "0" para fehar a conexão e sair.
-    5-Caso não tenha digitado "0" anteriormente, digite o texto da mensagem.
-    6-Após isto, serão encaminhadas as mensagens enviadas pelos outros Client para você.
-    7-Repita o processo a partir da etapa 4.
+    3-Digite o IP do servidor e o seu apelido quando for solicitado.
+    4-Digite a mensagem a ser enviada. As mensagens enviadas pelos demais clientes serão mostradas conforme forem sendo recebidas.
 
 Referência da biblioteca 'socket' (py3): https://docs.python.org/3/library/socket.html
 Referência da biblioteca 'thread' (py3): https://docs.python.org/3/library/_thread.html
