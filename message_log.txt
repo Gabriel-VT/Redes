@@ -5,3 +5,6 @@ Aguardando conexão
 Aguardando conexão
 Aguardando conexão
 Aguardando conexão
+Aguardando conexão
+Aguardando conexão
+Accepted new connection from 192.168.1.108:50350, username: xisReceived message from b'xis': kadkaReceived message from b'xis': oloReceived message from b'xis': kkkk
