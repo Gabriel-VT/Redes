@@ -8,20 +8,14 @@ Professor Claudio Miceli.
 INSTRUÇÕES:
   *Abrir um Server:*
     1-Instancie um objeto da classe "Server".
-    
     2-Chame a função "Server.run()".
-    
     3-O servidor irá abrir para os clientes se conectarem. Os clientes podem se conectar ou desconectar a qualquer momento.
-    
     4-O servidor irá receber mensagens e encaminhá-las a todos os clientes conectados.
     
   *Abrir um Client:*\n
     1-Instancie um objeto da classe "Client".
-    
     2-Chame a função "Client.run()".
-    
     3-Digite o IP do servidor e o seu apelido quando for solicitado.
-    
     4-Digite a mensagem a ser enviada. As mensagens enviadas pelos demais clientes serão mostradas conforme forem sendo recebidas.
     
   *Abrir P2P:*
