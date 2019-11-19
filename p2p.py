@@ -10,6 +10,7 @@ def GetUdpChatMessage():
     global name
     global broadcastSocket
     global current_online
+    
     while True:
         recved = broadcastSocket.recv(1024).decode('utf-8')
 
@@ -44,6 +45,7 @@ def GetUdpChatMessage():
 def SendBroadcastMessageForChat():
     global name
     global sendSocket
+
     sendSocket.setblocking(False)           
     while True:
         data = input(name + ">>")
@@ -64,6 +66,7 @@ def SendBroadcastMessageForChat():
 def SendBroadcastOnlineStatus():
     global name
     global sendSocket
+
     sendSocket.setblocking(False)
     username =  ('o'+name).encode('utf-8')
     username_header = f"{len(username):<{HEADER_LENGTH}}".encode('utf-8')
@@ -75,12 +78,12 @@ def SendBroadcastOnlineStatus():
 
 def main():
     global broadcastSocket
+    global sendSocket
 
     broadcastSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)      
     broadcastSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)   
     broadcastSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)   
     broadcastSocket.bind(('0.0.0.0', 2000))                                 
-    global sendSocket
     sendSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)           
     sendSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)         
 
@@ -103,12 +106,13 @@ def main():
     print('*************************************************')  
 
     global recvThread
-    recvThread = Thread(target=GetUdpChatMessage)               
     global sendMsgThread
-    sendMsgThread = Thread(target=SendBroadcastMessageForChat)  
     global current_online
-    current_online = []                                         
     global sendOnlineThread
+    
+    recvThread = Thread(target=GetUdpChatMessage)               
+    sendMsgThread = Thread(target=SendBroadcastMessageForChat)  
+    current_online = []                                         
     sendOnlineThread = Thread(target=SendBroadcastOnlineStatus) 
     recvThread.start()                                          
     sendMsgThread.start()                                       
