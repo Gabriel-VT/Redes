@@ -88,6 +88,9 @@ class Server:
         self.open(ip,port)
         self.start()
         
+s=Server()
+s.run()
+        
 
 
         

@@ -81,5 +81,6 @@ class Client:
         self.open(ip, port)
         self.start()
 
-
+c=Client()
+c.run()
 
