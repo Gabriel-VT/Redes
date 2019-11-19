@@ -87,3 +87,6 @@ class Server:
     def run(self):
         self.open()
         self.start()
+
+s=Server()
+s.run()
