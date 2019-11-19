@@ -17,6 +17,9 @@ INSTRUÇÕES:
     2-Chame a função "Client.run()"
     3-Digite o IP do servidor e o seu apelido quando for solicitado.
     4-Digite a mensagem a ser enviada. As mensagens enviadas pelos demais clientes serão mostradas conforme forem sendo recebidas.
+    
+  *Abrir P2P:*
+    1-
 
 Referência da biblioteca 'socket' (py3): https://docs.python.org/3/library/socket.html
 Referência da biblioteca 'thread' (py3): https://docs.python.org/3/library/_thread.html
